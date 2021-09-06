@@ -43,6 +43,8 @@
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
+/* Buffer used for transmission */
+uint8_t aTxBuffer[] = " **** UART3 Xmitting ****  **** UART3 Transmitting ****  **** UART3 Xmitting **** ";
 
 /* USER CODE END PV */
 
@@ -96,10 +98,21 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  if(HAL_UART_Transmit(&huart3, (uint8_t *)aTxBuffer, sizeof(aTxBuffer), 5000) != HAL_OK)
+	  {
+	    Error_Handler();
+	  }
+	  HAL_GPIO_TogglePin(GPIOC,LED_RED_Pin);
+	  HAL_Delay((uint32_t)500);
+	  HAL_GPIO_TogglePin(GPIOC,LED_RED_Pin);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    /* USER CODE END WHILE */
   }
+
+    /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */
 }
 
@@ -179,9 +192,20 @@ static void MX_USART3_UART_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : LED_RED_Pin */
+  GPIO_InitStruct.Pin = LED_RED_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(LED_RED_GPIO_Port, &GPIO_InitStruct);
 
 }
 
