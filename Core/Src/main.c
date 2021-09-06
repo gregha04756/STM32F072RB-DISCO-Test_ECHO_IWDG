@@ -18,6 +18,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <string.h>
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -45,7 +46,7 @@ UART_HandleTypeDef huart3;
 /* USER CODE BEGIN PV */
 /* Buffer used for transmission */
 uint8_t aTxBuffer[] = " **** UART3 Xmitting ****  **** UART3 Transmitting ****  **** UART3 Xmitting **** ";
-
+uint8_t rcv_buf[32];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,6 +69,7 @@ static void MX_USART3_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	HAL_StatusTypeDef rcv_result;
 
   /* USER CODE END 1 */
 
@@ -98,13 +100,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(HAL_UART_Transmit(&huart3, (uint8_t *)aTxBuffer, sizeof(aTxBuffer), 5000) != HAL_OK)
+	  memset((void *)rcv_buf,(int)0,sizeof(rcv_buf));
+	  rcv_result = HAL_UART_Receive(&huart3, (uint8_t *)rcv_buf, (uint16_t)1, 15);
+	  if (rvc_result == HAL_OK)
 	  {
-	    Error_Handler();
+		  HAL_GPIO_TogglePin(GPIOC,LED_RED_Pin);
+		  if(HAL_UART_Transmit(&huart3, (uint8_t *)rcv_buf, (uint16_t)1, 5000) != HAL_OK)
+		  {
+		    Error_Handler();
+		  }
+		  HAL_GPIO_TogglePin(GPIOC,LED_RED_Pin);
 	  }
-	  HAL_GPIO_TogglePin(GPIOC,LED_RED_Pin);
-	  HAL_Delay((uint32_t)500);
-	  HAL_GPIO_TogglePin(GPIOC,LED_RED_Pin);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
