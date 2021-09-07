@@ -102,7 +102,7 @@ int main(void)
   {
 	  memset((void *)rcv_buf,(int)0,sizeof(rcv_buf));
 	  rcv_result = HAL_UART_Receive(&huart3, (uint8_t *)rcv_buf, (uint16_t)1, 15);
-	  if (rvc_result == HAL_OK)
+	  if (rcv_result == HAL_OK)
 	  {
 		  HAL_GPIO_TogglePin(GPIOC,LED_RED_Pin);
 		  if(HAL_UART_Transmit(&huart3, (uint8_t *)rcv_buf, (uint16_t)1, 5000) != HAL_OK)
