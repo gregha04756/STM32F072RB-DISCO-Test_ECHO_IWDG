@@ -70,6 +70,7 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 	HAL_StatusTypeDef rcv_result;
+	int counter = 0;
 
   /* USER CODE END 1 */
 
@@ -98,18 +99,22 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  HAL_GPIO_TogglePin(GPIOC,LED_RED_Pin);
   while (1)
   {
+	  if (++counter > 100)
+	  {
+		  HAL_GPIO_TogglePin(GPIOC,LED_RED_Pin);
+		  counter = 0;
+	  }
 	  memset((void *)rcv_buf,(int)0,sizeof(rcv_buf));
 	  rcv_result = HAL_UART_Receive(&huart3, (uint8_t *)rcv_buf, (uint16_t)1, 15);
 	  if (rcv_result == HAL_OK)
 	  {
-		  HAL_GPIO_TogglePin(GPIOC,LED_RED_Pin);
 		  if(HAL_UART_Transmit(&huart3, (uint8_t *)rcv_buf, (uint16_t)1, 5000) != HAL_OK)
 		  {
 		    Error_Handler();
 		  }
-		  HAL_GPIO_TogglePin(GPIOC,LED_RED_Pin);
 	  }
     /* USER CODE END WHILE */
 
