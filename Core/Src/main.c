@@ -28,7 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,11 +46,14 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+IWDG_HandleTypeDef hiwdg;
+
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 /* Buffer used for transmission */
-uint8_t aTxBuffer[] = " **** UART3 Xmitting ****  **** UART3 Transmitting ****  **** UART3 Xmitting **** ";
+uint8_t aTxBuffer[] = " **** UART3 Xmitting and Rcvng ****\r\n";
+uint8_t zero_msg[] = " 0 received\r\n";
 uint8_t rcv_buf[32];
 /* USER CODE END PV */
 
@@ -58,6 +61,7 @@ uint8_t rcv_buf[32];
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
+static void MX_IWDG_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -98,8 +102,9 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART3_UART_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_UART_Transmit(&huart3, (uint8_t *)aTxBuffer, (uint16_t)sizeof(aTxBuffer)/sizeof(uint8_t), 5000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -116,11 +121,30 @@ int main(void)
 	  rcv_result = HAL_UART_Receive(&huart3, (uint8_t *)rcv_buf, (uint16_t)1, 15);
 	  if (rcv_result == HAL_OK)
 	  {
+		  if ((char)rcv_buf[0] == '0')
+		  {
+			  HAL_UART_Transmit(&huart3, (uint8_t *)zero_msg, (uint16_t)sizeof(zero_msg)/sizeof(uint8_t), 5000);
+			  /* As the following address is invalid (not mapped), a Hardfault exception
+			  will be generated with an infinite loop and when the IWDG counter falls to 0
+			  the IWDG reset occurs */
+			  *(__IO uint32_t *) 0x00040001 = 0xFF;
+
+		  }
 		  if(HAL_UART_Transmit(&huart3, (uint8_t *)rcv_buf, (uint16_t)1, 5000) != HAL_OK)
 		  {
 		    Error_Handler();
 		  }
+
 	  }
+	    /* Insert 50 ms delay */
+/*		    HAL_Delay(50); */
+
+	    /* Refresh IWDG: reload counter */
+	    if(HAL_IWDG_Refresh(&hiwdg) != HAL_OK)
+	    {
+	      /* Refresh Error */
+	      Error_Handler();
+	    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -144,9 +168,10 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_LSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -164,6 +189,35 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief IWDG Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_IWDG_Init(void)
+{
+
+  /* USER CODE BEGIN IWDG_Init 0 */
+
+  /* USER CODE END IWDG_Init 0 */
+
+  /* USER CODE BEGIN IWDG_Init 1 */
+
+  /* USER CODE END IWDG_Init 1 */
+  hiwdg.Instance = IWDG;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_32;
+  hiwdg.Init.Window = 4095;
+  hiwdg.Init.Reload = 4095;
+  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN IWDG_Init 2 */
+
+  /* USER CODE END IWDG_Init 2 */
+
 }
 
 /**
