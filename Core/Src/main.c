@@ -15,7 +15,11 @@
   *                        opensource.org/licenses/BSD-3-Clause
   *
   * Added for git push test GH 2021-10-28
+<<<<<<< HEAD
+  * Added another comment GH 2021-09-28
+=======
   * A 2nd comment GH 2021-10-28
+>>>>>>> c01cc6de0b502f69eaad1c8145bddf20206c0667
   ******************************************************************************
   */
 /* USER CODE END Header */
