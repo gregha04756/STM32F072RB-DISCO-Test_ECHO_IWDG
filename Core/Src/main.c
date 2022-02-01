@@ -127,7 +127,10 @@ int main(void)
 			  /* As the following address is invalid (not mapped), a Hardfault exception
 			  will be generated with an infinite loop and when the IWDG counter falls to 0
 			  the IWDG reset occurs */
-			  *(__IO uint32_t *) 0x00040001 = 0xFF;
+			  /* *(__IO uint32_t *) 0x00040001 = 0xFF; */
+			  while (1)
+			  {
+			  }
 
 		  }
 		  if(HAL_UART_Transmit(&huart3, (uint8_t *)rcv_buf, (uint16_t)1, 5000) != HAL_OK)
