@@ -261,3 +261,7 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+<<<<<<< HEAD
+=======
+
+>>>>>>> 75cedc3ed03b1d66b2cf9b39b5d95ba15993a948
